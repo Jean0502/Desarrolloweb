@@ -5,14 +5,14 @@ const countries = [
   { id: 'jp', flag: '🇯🇵', name: 'Japón' },
   { id: 'br', flag: '🇧🇷', name: 'Brasil' },
   { id: 'ar', flag: '🇦🇷', name: 'Argentina' },
-  { id: 'de', flag: '🇩🇪', name: 'Alemania' },
+  { id: 'de', flag: 'AL', name: 'Alemania' },
   { id: 'it', flag: '🇮🇹', name: 'Italia' },
   { id: 'ca', flag: '🇨🇦', name: 'Canadá' },
   { id: 'es', flag: '🇪🇸', name: 'España' },
   { id: 'cn', flag: '🇨🇳', name: 'China' },
   { id: 'kr', flag: '🇰🇷', name: 'Corea del Sur' },
   { id: 'in', flag: '🇮🇳', name: 'India' },
-  { id: 'uk', flag: '🇬🇧', name: 'Reino Unido' },
+  { id: 'uk', flag: 'RU', name: 'Reino Unido' },
   { id: 'pt', flag: '🇵🇹', name: 'Portugal' },
   { id: 'se', flag: '🇸🇪', name: 'Suecia' },
   { id: 'no', flag: '🇳🇴', name: 'Noruega' },
@@ -24,6 +24,10 @@ const countries = [
 const gameBoard = document.getElementById("gameBoard");
 const contadorElement = document.getElementById("contador");
 const mensajeFinal = document.getElementById("mensajeFinal");
+
+const sonidoClick = document.getElementById("sonidoClick");
+const sonidoAcierto = document.getElementById("sonidoAcierto");
+const sonidoError = document.getElementById("sonidoError");
 
 let cards = [];
 
@@ -62,6 +66,7 @@ cards.forEach((cardData) => {
   gameBoard.appendChild(card);
 
   card.addEventListener("click", () => {
+    sonidoClick.play();
     if (lockBoard || card.classList.contains("flipped")) return;
 
     card.classList.add("flipped");
@@ -79,6 +84,7 @@ cards.forEach((cardData) => {
       const id2 = secondCard.dataset.id;
 
       if (id1 === id2) {
+        sonidoAcierto.play();
         paresEncontrados++;
         firstCard = null;
         secondCard = null;
@@ -89,6 +95,7 @@ cards.forEach((cardData) => {
         }
 
       } else {
+        sonidoError.play();
         setTimeout(() => {
           firstCard.classList.remove("flipped");
           secondCard.classList.remove("flipped");
