@@ -1,24 +1,24 @@
 const countries = [
-  { id: 'mx', flag: '🇲🇽', name: 'México' },
-  { id: 'us', flag: '🇺🇸', name: 'Estados Unidos' },
-  { id: 'fr', flag: '🇫🇷', name: 'Francia' },
-  { id: 'jp', flag: '🇯🇵', name: 'Japón' },
-  { id: 'br', flag: '🇧🇷', name: 'Brasil' },
-  { id: 'ar', flag: '🇦🇷', name: 'Argentina' },
-  { id: 'de', flag: '🇩🇪', name: 'Alemania' },
-  { id: 'it', flag: '🇮🇹', name: 'Italia' },
-  { id: 'ca', flag: '🇨🇦', name: 'Canadá' },
-  { id: 'es', flag: '🇪🇸', name: 'España' },
-  { id: 'cn', flag: '🇨🇳', name: 'China' },
-  { id: 'kr', flag: '🇰🇷', name: 'Corea del Sur' },
-  { id: 'in', flag: '🇮🇳', name: 'India' },
-  { id: 'uk', flag: '🇬🇧', name: 'Reino Unido' },
-  { id: 'pt', flag: '🇵🇹', name: 'Portugal' },
-  { id: 'se', flag: '🇸🇪', name: 'Suecia' },
-  { id: 'no', flag: '🇳🇴', name: 'Noruega' },
-  { id: 'au', flag: '🇦🇺', name: 'Australia' },
-  { id: 'ru', flag: '🇷🇺', name: 'Rusia' },
-  { id: 'za', flag: '🇿🇦', name: 'Sudáfrica' },
+  { id: 'mx', name: 'México' },
+  { id: 'us', name: 'Estados Unidos' },
+  { id: 'fr', name: 'Francia' },
+  { id: 'jp', name: 'Japón' },
+  { id: 'br', name: 'Brasil' },
+  { id: 'ar', name: 'Argentina' },
+  { id: 'de', name: 'Alemania' },
+  { id: 'it', name: 'Italia' },
+  { id: 'ca', name: 'Canadá' },
+  { id: 'es', name: 'España' },
+  { id: 'cn', name: 'China' },
+  { id: 'kr', name: 'Corea del Sur' },
+  { id: 'in', name: 'India' },
+  { id: 'uk', name: 'Reino Unido' },
+  { id: 'pt', name: 'Portugal' },
+  { id: 'se', name: 'Suecia' },
+  { id: 'no', name: 'Noruega' },
+  { id: 'au', name: 'Australia' },
+  { id: 'ru', name: 'Rusia' },
+  { id: 'za', name: 'Sudáfrica' },
 ];
 
 const gameBoard = document.getElementById("gameBoard");
@@ -30,6 +30,7 @@ const sonidoAcierto = document.getElementById("sonidoAcierto");
 const sonidoError = document.getElementById("sonidoError");
 const dificultadSelect = document.getElementById("dificultad");
 const iniciarBtn = document.getElementById("iniciarJuego");
+const recordElement = document.getElementById("record");
 
 let cards = [];
 let firstCard = null;
@@ -72,14 +73,20 @@ function reiniciarJuego() {
   const seleccion = countries.slice(0, cantidadPares);
   cards = [];
   seleccion.forEach((country) => {
-    cards.push({ id: country.id, content: country.flag });
-    cards.push({ id: country.id, content: country.name });
+    cards.push({
+      id: country.id,
+      content: `<img src='https://flagcdn.com/w40/${country.id}.png' alt='${country.name}' width='30'>`
+    });
+    cards.push({
+      id: country.id,
+      content: country.name
+    });
   });
   cards = shuffle(cards);
 
   crearTablero();
   iniciarTemporizador();
-  mostrarRecord(); // 🏅 Mostrar récord actual de la dificultad seleccionada
+  mostrarRecord();
 }
 
 function crearTablero() {
@@ -101,7 +108,7 @@ function crearTablero() {
 
     const back = document.createElement("div");
     back.classList.add("card-back");
-    back.textContent = cardData.content;
+    back.innerHTML = cardData.content;
 
     cardInner.appendChild(front);
     cardInner.appendChild(back);
@@ -135,8 +142,8 @@ function crearTablero() {
 
           if (paresEncontrados === cards.length / 2) {
             clearInterval(temporizador);
-            guardarRecord(dificultadSelect.value, movimientos, tiempoRestante); // 🏅 Guardar récord
-            mostrarRecord(); // 🏅 Mostrarlo actualizado
+            guardarRecord(dificultadSelect.value, movimientos, tiempoRestante);
+            mostrarRecord();
             mensajeFinal.textContent = "🎉 ¡Ganaste!";
             mensajeFinal.style.display = "block";
           }
@@ -178,7 +185,6 @@ function shuffle(array) {
   return array.sort(() => 0.5 - Math.random());
 }
 
-// 🏅 GUARDAR récord en localStorage si es el mejor
 function guardarRecord(dificultad, movimientos, tiempoRestante) {
   let records = JSON.parse(localStorage.getItem("records")) || {};
 
@@ -186,11 +192,8 @@ function guardarRecord(dificultad, movimientos, tiempoRestante) {
     records[dificultad] = { movimientos, tiempo: tiempoRestante };
   } else {
     const record = records[dificultad];
-    const esNuevoRecord =
-      movimientos < record.movimientos ||
-      (movimientos === record.movimientos && tiempoRestante > record.tiempo);
-
-    if (esNuevoRecord) {
+    if (movimientos < record.movimientos ||
+        (movimientos === record.movimientos && tiempoRestante > record.tiempo)) {
       records[dificultad] = { movimientos, tiempo: tiempoRestante };
     }
   }
@@ -198,18 +201,14 @@ function guardarRecord(dificultad, movimientos, tiempoRestante) {
   localStorage.setItem("records", JSON.stringify(records));
 }
 
-// 🏅 MOSTRAR récord en pantalla
 function mostrarRecord() {
   let records = JSON.parse(localStorage.getItem("records")) || {};
   const dificultad = dificultadSelect.value;
   const record = records[dificultad];
 
-  const recordElement = document.getElementById("record");
   if (!recordElement) return;
-
   if (record) {
-    const texto = `🏅 Récord ${dificultad} → Movimientos: ${record.movimientos}, Tiempo: ${record.tiempo}s`;
-    recordElement.textContent = texto;
+    recordElement.textContent = `🏅 Récord ${dificultad} → Movimientos: ${record.movimientos}, Tiempo: ${record.tiempo}s`;
   } else {
     recordElement.textContent = "🏅 Sin récord guardado aún";
   }
