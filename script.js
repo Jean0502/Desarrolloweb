@@ -53,22 +53,25 @@ function reiniciarJuego() {
   paresEncontrados = 0;
   contadorElement.textContent = `Movimientos: ${movimientos}`;
   clearInterval(temporizador);
-  tiempoRestante = 60;
-  tiempoElement.textContent = `Tiempo restante: ${tiempoRestante}s`;
 
   let cantidadPares;
   switch (dificultadSelect.value) {
     case "facil":
       cantidadPares = 4;
+      tiempoRestante = 90; // ⏱️ Fácil
       break;
     case "media":
       cantidadPares = 8;
+      tiempoRestante = 60; // ⏱️ Media
       break;
     case "dificil":
     default:
       cantidadPares = 12;
+      tiempoRestante = 45; // ⏱️ Difícil
       break;
   }
+
+  tiempoElement.textContent = `Tiempo restante: ${tiempoRestante}s`;
 
   const seleccion = countries.slice(0, cantidadPares);
   cards = [];
