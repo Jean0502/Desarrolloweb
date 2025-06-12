@@ -25,11 +25,9 @@ const gameBoard = document.getElementById("gameBoard");
 const contadorElement = document.getElementById("contador");
 const tiempoElement = document.getElementById("tiempo");
 const mensajeFinal = document.getElementById("mensajeFinal");
-
 const sonidoClick = document.getElementById("sonidoClick");
 const sonidoAcierto = document.getElementById("sonidoAcierto");
 const sonidoError = document.getElementById("sonidoError");
-
 const dificultadSelect = document.getElementById("dificultad");
 const iniciarBtn = document.getElementById("iniciarJuego");
 
@@ -81,6 +79,7 @@ function reiniciarJuego() {
 
   crearTablero();
   iniciarTemporizador();
+  mostrarRecord(); // 🏅 Mostrar récord actual de la dificultad seleccionada
 }
 
 function crearTablero() {
@@ -136,6 +135,8 @@ function crearTablero() {
 
           if (paresEncontrados === cards.length / 2) {
             clearInterval(temporizador);
+            guardarRecord(dificultadSelect.value, movimientos, tiempoRestante); // 🏅 Guardar récord
+            mostrarRecord(); // 🏅 Mostrarlo actualizado
             mensajeFinal.textContent = "🎉 ¡Ganaste!";
             mensajeFinal.style.display = "block";
           }
@@ -175,4 +176,41 @@ function bloquearTablero() {
 
 function shuffle(array) {
   return array.sort(() => 0.5 - Math.random());
+}
+
+// 🏅 GUARDAR récord en localStorage si es el mejor
+function guardarRecord(dificultad, movimientos, tiempoRestante) {
+  let records = JSON.parse(localStorage.getItem("records")) || {};
+
+  if (!records[dificultad]) {
+    records[dificultad] = { movimientos, tiempo: tiempoRestante };
+  } else {
+    const record = records[dificultad];
+    const esNuevoRecord =
+      movimientos < record.movimientos ||
+      (movimientos === record.movimientos && tiempoRestante > record.tiempo);
+
+    if (esNuevoRecord) {
+      records[dificultad] = { movimientos, tiempo: tiempoRestante };
+    }
+  }
+
+  localStorage.setItem("records", JSON.stringify(records));
+}
+
+// 🏅 MOSTRAR récord en pantalla
+function mostrarRecord() {
+  let records = JSON.parse(localStorage.getItem("records")) || {};
+  const dificultad = dificultadSelect.value;
+  const record = records[dificultad];
+
+  const recordElement = document.getElementById("record");
+  if (!recordElement) return;
+
+  if (record) {
+    const texto = `🏅 Récord ${dificultad} → Movimientos: ${record.movimientos}, Tiempo: ${record.tiempo}s`;
+    recordElement.textContent = texto;
+  } else {
+    recordElement.textContent = "🏅 Sin récord guardado aún";
+  }
 }
